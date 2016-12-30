@@ -1,0 +1,62 @@
+<style>
+    .code-error {
+        margin: 5px 0;
+        padding: 6px;
+        background-color: hsla(8, 75%, 62.5%, 0.15);
+        background: linear-gradient(to bottom, hsla(8, 75%, 62.5%, 0.12), hsla(8, 75%, 62.5%, 0.185));
+        font: 0.9em/1.4em Arial;
+        border: thin solid rgba(0,0,0, 0.15);
+        border-radius: 3px;
+    }
+
+    .code-error.notice {
+        background-color: rgba(0,0,0, 0.05);
+        background: linear-gradient(to bottom, rgba(0,0,0, 0.02), rgba(0,0,0, 0.05));
+    }
+
+    .code-error h3 {
+        margin: 0 0 4px;
+    }
+
+    .code-error h3 > i {
+        font-size: 11px;
+        line-height: 1em;
+        color: rgba(0,0,0, 0.3);
+    }
+
+    .code-error p {
+        margin: 0 0 0 6px;
+        line-height: 1.33em;
+    }
+
+    .code-error p i {
+        color: #555;
+    }
+
+    /*.code-error code {
+        padding-left: 1px;
+        font: 0.95em Menlo, 'Fira Mono', monospace;
+    }*/
+
+    .code-error .error-msg::before {
+        /* &ldquo; */
+        content: '\201c';
+        position: absolute;
+        margin-left: -6px;
+    }
+
+    .code-error .error-msg::after {
+        /* &rdquo; */
+        content: '\201d';
+        margin-left: 1px;
+    }
+
+    .code-error p a {
+        text-decoration: none;
+        color: hsl(207, 75%, 30%);
+    }
+    
+    .code-error p a:hover {
+        color: hsl(207, 70%, 60%);
+    }
+</style>
