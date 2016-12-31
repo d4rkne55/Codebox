@@ -4,15 +4,7 @@ function calc_qf($res, $bitrate, $fps = 23.976) {
     return sprintf('%.3f', round($qf, 3));
 }
 
-//echo calc_qf('1280x536', 3500);
-
-
-function calc_bitrate($res, $qf, $fps = 23.076) {
-    $res = explode('x', $res);
-    return ceil($qf * ($res[0] * $res[1] * $fps) / 1000);
-}
-
-//echo calc_bitrate('1280x536', 0.200);
+//echo calc_qf('1280x536', 3560);
 
 
 function calc_max_ref($widthPx, $heightPx, $profileLevel) {
@@ -41,4 +33,4 @@ function calc_max_ref($widthPx, $heightPx, $profileLevel) {
     return min(floor($maxDPB / ($widthMbs * $heightMbs)), 16);
 }
 
-//echo calc_max_ref(1920, 816, '4.1');
+//echo calc_max_ref(2560, 1440, '5.1');

@@ -1,0 +1,87 @@
+<style>
+    code {
+        white-space: pre-line;
+    }
+    code span {
+        white-space: pre;
+    }
+
+    .dumper {
+        font: 1em/1.33em monospace;
+    }
+
+    table.dumper {
+        white-space: pre;
+        border-collapse: collapse;
+    }
+
+    .dumper td {
+        padding: 0;
+        vertical-align: top;
+    }
+
+    .dumper tr:not(:first-child) td:first-child {
+        width: 4ch;
+    }
+
+    .dumper .var-type {
+        /*color: darkorange;*/
+        color: green;
+        font-weight: bold;
+    }
+
+    .dumper .var-name {
+        color: darkviolet;
+    }
+
+    .dumper.highlighting .object-index {
+        /*color: darkgreen;*/
+        color: navy;
+        font-style: italic;
+    }
+
+    .dumper.highlighting .value.int {
+        color: mediumblue;
+    }
+
+    .dumper.highlighting .value.float {
+        color: dodgerblue;
+    }
+
+    .dumper.highlighting .value.string {
+        color: firebrick;
+    }
+
+    .dumper.highlighting .value.string .escaped-char {
+        color: orange;
+    }
+
+    .dumper.highlighting .value.string .string-shortened {
+        color: darkgray;
+    }
+
+    .dumper.highlighting .value.true {
+        color: forestgreen;
+        font-weight: 600;
+    }
+
+    .dumper.highlighting .value.false {
+        color: crimson;
+        font-weight: 600;
+    }
+
+    .dumper.highlighting .value.object {
+        color: darkorange;
+        font-weight: 600;
+    }
+
+    .dumper.highlighting .value.null {
+        color: darkgray;
+        font-weight: bold;
+    }
+
+    .dumper.highlighting .value-type {
+        color: gray;
+        font-style: italic;
+    }
+</style>

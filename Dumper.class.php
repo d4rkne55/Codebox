@@ -10,34 +10,173 @@ class Dumper
      * Dumper constructor.
      * Dumps variables with highlighting when passed, else only prepare for time measuring
      *
-     * @param array $var  Array of variables to dump
+     * @param mixed $var          variable(s) to dump
+     * @param bool $custom        decides whether custom dumping format or PHP's print_r
+     * @param bool $highlighting  colored styling or plain dump
      */
-    public function __construct($vars = null) {
-        if ($vars) {
-            $dumped = print_r($vars, true);
-            // add PHP-tags temporarily for hightlight_string() to work
-            $code = '<?php ' .$dumped. ' ?>';
-            $code = highlight_string($code, true);
+    public function __construct($var = null, $custom = true, $highlighting = true) {
+        if (isset($var)) {
+            $containerStyles = $this::arrayToInlineCss(array(
+                'margin' => '0.3em 0',
+                'padding' => '0.2em 0.3em 0.3em',
+                'background' => 'rgba(0,0,0, 0.02)',
+                'border' => '1px solid rgba(0,0,0, 0.1)',
+                'border-width' => '1px 0'
+            ));
+            echo "<div style=\"$containerStyles\">";
 
-            // remove PHP-tags from output again
-            $dom = new \DOMDocument();
-            $dom->loadHTML($code);
-            $xPath = new \DOMXPath($dom);
+            if ($custom) {
+                $this->customDumping($var, $highlighting);
+            } else {
+                $dumped = print_r($var, true);
+                $dumped = '<pre style="margin: 0">' .$dumped. '</pre>';
 
-            $nodes = $xPath->query('//code/span/span');
-            $node1 = $nodes->item(0);
-            $node2 = $nodes->item( $nodes->length - 1 );
-            $node3 = $xPath->query('br[last()]', $node2->previousSibling)->item(0);
-            $node1->parentNode->removeChild($node1);
-            $node2->parentNode->removeChild($node2);
-            if (isset($node3)) $node3->parentNode->removeChild($node3);
+                echo $dumped;
+            }
 
-            $code = $dom->saveHTML();
-            echo '<br><br>', $code, '<br>';
+            echo '</div>';
         }
 
         // start time measuring
         $this->timeStart = microtime(true);
+    }
+
+    /**
+     * Custom dumping format and styling for better readability
+     *
+     * @param mixed $var
+     * @param bool $highlighting
+     */
+    public function customDumping($var, $highlighting) {
+        include_once('templates/DumperCustom.css.html');
+
+        if (is_array($var)) {
+            ?>
+            <table class="dumper <?php echo $highlighting ? 'highlighting' : '' ?>">
+                <tr>
+                    <td colspan="3"><span class="var-type">Array</span> {</td>
+                </tr>
+                <?php
+                foreach ($var as $varKey => $varValue) {
+                    $value = self::processVarValue($varValue);
+                    $valueType = self::getVarType($varValue);
+                    $typeClass = self::getVarType($varValue, true);
+                    ?>
+                    <tr>
+                        <td></td>
+                        <td><span class="object-index"><?= $varKey ?></span></td>
+                        <td> => </td>
+                        <td><span class="value <?= $typeClass ?>"><?= $value ?></span> <?= $valueType ?></td>
+                    </tr>
+                    <?php
+                }
+                ?>
+                <tr>
+                    <td>}</td>
+                </tr>
+            </table>
+            <?php
+        }
+        else {
+            $value = self::processVarValue($var);
+            $valueType = self::getVarType($var);
+            $typeClass = self::getVarType($var, true);
+            ?>
+            <div class="dumper highlighting">
+                <span class="value <?= $typeClass ?>"><?= $value ?></span> <?= $valueType ?>
+            </div>
+            <?php
+        }
+    }
+
+    /**
+     * Returns the variable's datatype
+     * Includes the markup for being displayed when $cssClass is not set
+     *
+     * @param mixed $var
+     * @param bool $cssClass
+     * @return string
+     */
+    private static function getVarType($var, $cssClass = false) {
+        switch ($valueType = gettype($var)) {
+            case 'integer' :
+                $valueType = 'int';
+                break;
+            case 'double' :
+                $valueType = 'float';
+                break;
+            case 'boolean' :
+                $valueType = 'bool';
+                break;
+            case 'object' :
+                $valueType = 'Object';
+                break;
+            case 'resource' :
+                $valueType = 'Resource';
+                break;
+            case 'NULL' :
+                $valueType = 'null';
+                break;
+        }
+
+        if ($cssClass) {
+            if ($valueType == 'bool') {
+                $valueType = ($var === true) ? 'true' : 'false';
+            } else {
+                $valueType = strtolower($valueType);
+            }
+        } else {
+            if (!in_array($valueType, array('array', 'null'))) {
+                $valueType = '<span class="value-type">(' . $valueType . ')</span>';
+            } else {
+                $valueType = '';
+            }
+        }
+
+        return $valueType;
+    }
+
+    /**
+     * Processes values for dumping
+     *
+     * @param mixed $var
+     * @return mixed|string
+     */
+    private static function processVarValue($var) {
+        switch (gettype($var)) {
+            case 'string' :
+                $quoteType = '"';
+                $value = str_replace($quoteType, "\\$quoteType", $var);
+                // shorten long strings
+                if (mb_strlen($value) > 50) {
+                    $value = mb_substr($value, 0, 50) . '<span class="string-shortened">&hellip;</span>';
+                }
+                // escaping of special characters
+                $value = strtr($value, array(
+                    "\\$quoteType" => '<span class="escaped-char">\\' .$quoteType. '</span>',
+                    "\r" => '<span class="escaped-char">\r</span>',
+                    "\n" => '<span class="escaped-char">\n</span>',
+                    "\t" => '<span class="escaped-char">\t</span>'
+                ));
+                $value = $quoteType .$value. $quoteType;
+                break;
+            case 'boolean' :
+                $value = ($var === true) ? 'true' : 'false';
+                break;
+            case 'array' :
+                $value = print_r($var, true);
+                break;
+            case 'object' :
+                $value = get_class($var);
+                break;
+            case 'NULL' :
+                $value = 'null';
+                break;
+            default :
+                $value = $var;
+        }
+
+        return $value;
     }
 
     /**
@@ -48,5 +187,17 @@ class Dumper
     public function getTime($precision = 2) {
         $this->timeEnd = microtime(true);
         echo sprintf("%.{$precision}f", ($this->timeEnd - $this->timeStart) * 1000) . ' ms';
+    }
+
+    /**
+     * little helper function for converting an associative array to inline CSS format
+     */
+    private static function arrayToInlineCss($styleArr) {
+        $css = array();
+        foreach ($styleArr as $option => $value) {
+            $css[] = $option. ':' .$value;
+        }
+
+        return implode(';', $css);
     }
 }

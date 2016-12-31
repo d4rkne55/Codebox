@@ -10,22 +10,29 @@ namespace PHPCodebox;
  */
 class Codebox
 {
-    /**
-     * Path to the style file for the errorHandler
-     *
-     * @var string|null
-     */
-    private $errorHandlingStyle;
-
-
-    public function __construct($errorHandling = false, $errorHandlingStyle = null) {
-        $this->errorHandlingStyle = $errorHandlingStyle;
+    public function __construct($errorHandling = false) {
+        set_time_limit(3);
 
         if ($errorHandling) {
+            // fix for not throwing 500 status code for fatal errors on webserver
+            ini_set('display_errors', 1);
+
             $errMgr = new ErrorManager();
             set_error_handler(array($errMgr, 'handleError'));
             set_exception_handler(array($errMgr, 'handleException'));
+            ErrorManager::handleFatal();
         }
+    }
+
+    public static function getCodeTemplate() {
+        if (!empty($_GET['fn'])) {
+            $fn = "functions/{$_GET['fn']}.php";
+            if (file_exists($fn)) {
+                return file_get_contents($fn);
+            }
+        }
+
+        return false;
     }
 
     public function parseCode($code) {

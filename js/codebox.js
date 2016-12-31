@@ -25,7 +25,10 @@ function errorsOnLines(show) {
         errorLines = window.outputFrame.document.querySelectorAll('.error-line');
         errorLines.forEach(function(elem) {
             var i = elem.innerHTML - 1;
-            lineNumbers.childNodes[i].className = "error";
+            var lineToMark = lineNumbers.childNodes[i];
+            if (lineToMark !== undefined) {
+                lineToMark.className = "error";
+            }
         });
     }
 }
@@ -229,8 +232,5 @@ $(document).ready(function() {
  */
 function regexTester(regex) {
     var testStr = txtArea.value;
-    testStr = testStr.split("\n");
-    for (var i = 0; i < testStr.length; i++) {
-        console.log(testStr[i].match(regex));
-    }
+    console.log(testStr.match(regex));
 }
