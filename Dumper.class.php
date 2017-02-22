@@ -17,11 +17,14 @@ class Dumper
     public function __construct($var = null, $custom = true, $highlighting = true) {
         if (isset($var)) {
             $containerStyles = $this::arrayToInlineCss(array(
+                'display' => 'table',
+                'min-width' => '100%',
                 'margin' => '0.3em 0',
-                'padding' => '0.2em 0.3em 0.3em',
+                'padding' => '0.2em 0.35em 0.3em',
                 'background' => 'rgba(0,0,0, 0.02)',
                 'border' => '1px solid rgba(0,0,0, 0.1)',
-                'border-width' => '1px 0'
+                'border-width' => '1px 0',
+                'box-sizing' => 'border-box'
             ));
             echo "<div style=\"$containerStyles\">";
 
@@ -148,11 +151,13 @@ class Dumper
                 $quoteType = '"';
                 $value = str_replace($quoteType, "\\$quoteType", $var);
                 // shorten long strings
-                if (mb_strlen($value) > 50) {
+                /*if (mb_strlen($value) > 50) {
                     $value = mb_substr($value, 0, 50) . '<span class="string-shortened">&hellip;</span>';
-                }
+                }*/
                 // escaping of special characters
                 $value = strtr($value, array(
+                    '<' => '&lt;',
+                    '>' => '&gt;',
                     "\\$quoteType" => '<span class="escaped-char">\\' .$quoteType. '</span>',
                     "\r" => '<span class="escaped-char">\r</span>',
                     "\n" => '<span class="escaped-char">\n</span>',

@@ -36,6 +36,8 @@ class Codebox
     }
 
     public function parseCode($code) {
+        ob_start();
+
         if (!empty($code)) {
             // if HTML tag or PHP start-tag at the beginning of the code,
             // parse code but also allow HTML
@@ -45,6 +47,9 @@ class Codebox
             eval($code);
         }
 
-        exit;
+        $output = ob_get_contents();
+        ob_end_clean();
+
+        return $output;
     }
 }

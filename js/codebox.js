@@ -36,7 +36,11 @@ function errorsOnLines(show) {
 function runCode(code) {
     if (code) {
         $.post("", {code: code}, function(result) {
-            window.outputFrame.document.body.innerHTML = result;
+            var iframe = window.outputFrame.document;
+            iframe.open();
+            iframe.write(result);
+            iframe.close();
+
             errorsOnLines();
         });
     }
@@ -218,10 +222,22 @@ $(document).ready(function() {
         lineNumbers.style.height = txtArea.style.height;
     });
 
+    // standard POST form submit (with page reload)
     document.querySelector('.btn-submit').onclick = function() {
         txtArea.value = txtArea.value.trim();
-        runCode(txtArea.value);
         sessionStorage.setItem('autosave', txtArea.value);
+
+        var form = document.createElement('form');
+        form.name = 'codebox';
+        form.method = 'post';
+        form.style.display = 'none';
+
+        var formTxtArea = txtArea.cloneNode(false);
+        formTxtArea.value = txtArea.value;
+        form.appendChild(formTxtArea);
+
+        document.body.appendChild(form);
+        document.codebox.submit();
     }
 });
 

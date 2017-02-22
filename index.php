@@ -9,7 +9,16 @@ use PHPCodebox\Codebox;
 // if AJAX request
 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
     $codebox = new Codebox(true);
-    $codebox->parseCode($_POST['code']);
+    $output = $codebox->parseCode($_POST['code']);
+    die($output);
+}
+elseif (isset($_POST['code'])) {
+    $codebox = new Codebox(true);
+    $code = ($_POST['code']) ? $_POST['code'] : Codebox::getCodeTemplate();
+    $output = htmlspecialchars( $codebox->parseCode($code) );
+} else {
+    $code = null;
+    $output = null;
 }
 ?>
 <!DOCTYPE html>
@@ -32,9 +41,11 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
         <div class="row-wrapper">
             <div class="codebox-wrapper">
                 <div class="line-numbers"></div>
-                <textarea class="code" name="code" autofocus spellcheck="false"><?= Codebox::getCodeTemplate() ?></textarea>
+                <textarea class="code" name="code" autofocus spellcheck="false"><?= $code ?></textarea>
             </div>
-            <iframe class="output" name="outputFrame" sandbox="allow-forms allow-scripts allow-modals allow-same-origin"></iframe>
+            <iframe class="output" name="outputFrame" sandbox="allow-forms allow-scripts allow-modals allow-same-origin"
+                srcdoc="<?= $output ?>">
+            </iframe>
         </div>
     </div>
 

@@ -59,8 +59,11 @@ class ErrorManager
             return true;
         }
         catch (\Exception $e) {
+            // output error messages for internal errors from the above code itself
             $format = '<span style="color: gray"><b>Codebox Error</b>: %s (%s:%d)</span><br>';
             printf($format, $e->getMessage(), basename($e->getFile()), $e->getLine());
+
+            // ..and use the default error handling, as this doesn't work
             return false;
         }
     }
@@ -95,7 +98,7 @@ class ErrorManager
         $str = preg_replace('/variable: (\w+)/', 'variable: \$$1', $str);
 
         // make undefined stuff italic and slightly grey, except offsets (beginning with number)
-        $str = preg_replace('/(undefined [a-z]+:?) ([a-z$][^\s]+)/i', '$1 <i>$2</i>', $str);
+        $str = preg_replace('/(undefined [a-z]+:?) ([a-z$][\w]*)/i', '$1 <i>$2</i>', $str);
 
         // link to php manual for functions and methods, unless undefined
         if (stripos($str, 'undefined') === false) {
