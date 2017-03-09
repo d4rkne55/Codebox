@@ -57,7 +57,7 @@ class Dumper
             ?>
             <table class="dumper <?php echo $highlighting ? 'highlighting' : '' ?>">
                 <tr>
-                    <td colspan="3"><span class="var-type">Array</span> {</td>
+                    <td colspan="4"><span class="var-type">Array</span> {</td>
                 </tr>
                 <?php
                 foreach ($var as $varKey => $varValue) {
@@ -150,14 +150,17 @@ class Dumper
             case 'string' :
                 $quoteType = '"';
                 $value = str_replace($quoteType, "\\$quoteType", $var);
-                // shorten long strings
-                /*if (mb_strlen($value) > 50) {
-                    $value = mb_substr($value, 0, 50) . '<span class="string-shortened">&hellip;</span>';
-                }*/
-                // escaping of special characters
+                // escaping of HTML tags
                 $value = strtr($value, array(
                     '<' => '&lt;',
-                    '>' => '&gt;',
+                    '>' => '&gt;'
+                ));
+                // shorten long strings
+                if (mb_strlen($value) > 500) {
+                    $value = mb_substr($value, 0, 500) . '<span class="string-shortened">&hellip;</span>';
+                }
+                // escaping of special characters
+                $value = strtr($value, array(
                     "\\$quoteType" => '<span class="escaped-char">\\' .$quoteType. '</span>',
                     "\r" => '<span class="escaped-char">\r</span>',
                     "\n" => '<span class="escaped-char">\n</span>',

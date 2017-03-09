@@ -12,13 +12,15 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
     $output = $codebox->parseCode($_POST['code']);
     die($output);
 }
-elseif (isset($_POST['code'])) {
-    $codebox = new Codebox(true);
-    $code = ($_POST['code']) ? $_POST['code'] : Codebox::getCodeTemplate();
-    $output = htmlspecialchars( $codebox->parseCode($code) );
-} else {
-    $code = null;
+else {
+    $code = Codebox::getCodeTemplate();
     $output = null;
+
+    if (isset($_POST['code'])) {
+        $codebox = new Codebox(true);
+        $code = $_POST['code'];
+        $output = htmlspecialchars( $codebox->parseCode($code) );
+    }
 }
 ?>
 <!DOCTYPE html>

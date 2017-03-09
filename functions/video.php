@@ -1,3 +1,5 @@
+<?php
+
 function calc_qf($res, $bitrate, $fps = 23.976) {
     $res = explode('x', $res);
     $qf = ($bitrate * 1000) / ($res[0] * $res[1] * $fps);

@@ -1,3 +1,5 @@
+<?php
+
 function contract_compare($payment1, $payment2, $timespan, $output = true) {
     if (is_array($payment1)) {
         $one_time1 = $payment1[0];

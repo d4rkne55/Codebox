@@ -1,3 +1,4 @@
+<?php
 echo $a;
 $b = array();
 echo $b;

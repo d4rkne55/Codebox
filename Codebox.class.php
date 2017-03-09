@@ -28,7 +28,10 @@ class Codebox
         if (!empty($_GET['fn'])) {
             $fn = "functions/{$_GET['fn']}.php";
             if (file_exists($fn)) {
-                return file_get_contents($fn);
+                // get contents after first 5 chars - ignore the PHP start-tag
+                $template = file_get_contents($fn, null, null, 5);
+
+                return trim($template);
             }
         }
 

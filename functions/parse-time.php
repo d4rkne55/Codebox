@@ -1,3 +1,5 @@
+<?php
+
 function parseTime($string) {
     $units = array_reverse(explode(':', $string));
     $seconds = 0;
@@ -9,4 +11,4 @@ function parseTime($string) {
     return $seconds;
 }
 
-echo parseTime('4:00');
+//echo parseTime('4:00');
