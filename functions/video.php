@@ -3,10 +3,21 @@
 function calc_qf($res, $bitrate, $fps = 23.976) {
     $res = explode('x', $res);
     $qf = ($bitrate * 1000) / ($res[0] * $res[1] * $fps);
+
     return sprintf('%.3f', round($qf, 3));
 }
 
 //echo calc_qf('1280x536', 3560);
+
+
+function calc_bitrate($res, $qf, $fps = 23.976) {
+    $res = explode('x', $res);
+    $bitrate = $qf * ($res[0] * $res[1] * $fps) / 1000;
+
+    return ceil($bitrate);
+}
+
+//echo calc_bitrate('1280x536', 0.200);
 
 
 function calc_max_ref($widthPx, $heightPx, $profileLevel) {
