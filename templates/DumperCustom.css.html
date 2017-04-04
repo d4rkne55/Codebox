@@ -8,10 +8,10 @@
 
     .dumper {
         font: 1em/1.33em monospace;
+        white-space: nowrap;
     }
 
     table.dumper {
-        white-space: pre;
         border-collapse: collapse;
     }
 
@@ -22,6 +22,10 @@
 
     .dumper tr:not(:first-child) td:first-child {
         min-width: 4ch;
+    }
+
+    .dumper td:nth-child(3) {
+        padding: 0 8px;
     }
 
     .dumper .var-type {
@@ -38,6 +42,10 @@
         /*color: darkgreen;*/
         color: navy;
         font-style: italic;
+    }
+
+    .dumper .value {
+        white-space: pre;
     }
 
     .dumper.highlighting .value.int {
