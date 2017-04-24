@@ -38,7 +38,6 @@ class ErrorManager
 
             $errType = self::$errType[$errNum];
             $noticeClass = (stripos($errType, 'notice') !== false) ? 'notice' : '';
-            $note = $fatal ? '<br>Script execution has stopped.' : '';
 
             $errStr = self::formatErrorMessage($errStr);
 
@@ -48,7 +47,7 @@ class ErrorManager
                 'errType' => $errType,
                 'errStr' => $errStr,
                 'errLine' => $errLine,
-                'note' => $note
+                'fatal' => $fatal
             ));
 
             // if fatal error, stop script execution, just like PHP's original handling
@@ -105,9 +104,11 @@ class ErrorManager
             $str = preg_replace_callback('/(?:([^\s]+)::)?(\w+\(\))/', function($matches) {
                 $funcParent = empty($matches[1]) ? 'function' : $matches[1];
 
-                // remove function parenthesis and replace underscores with dash for URL
+                // remove function parenthesis and double underscore from magic_methods
+                // and replace underscores with dash for URL
                 $func = strtr($matches[2], array(
                     "()" => "",
+                    "__" => "",
                     "_" => "-"
                 ));
 

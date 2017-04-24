@@ -5,6 +5,8 @@ include_once 'ErrorManager.css.html';
     <h3><?= $this->errType ?></h3>
     <p>
         <span class="error-msg"><?= $this->errStr ?></span>&ensp;on line <b class="error-line"><?= $this->errLine ?></b>
-        <?= $this->note ?>
+        <?php if($this->fatal) { ?>
+        <br>Script execution has stopped.
+        <?php } ?>
     </p>
 </div>
