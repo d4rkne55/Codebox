@@ -98,9 +98,8 @@ $(document).ready(function() {
     if (sessionStorage.getItem('autosave')) {
         txtArea.value = sessionStorage.getItem('autosave');
     }
-    updateLineNumbers();
 
-    //autosize(txtArea);
+    updateLineNumbers();
 
     document.addEventListener('keydown', function(e) {
         // CTRL + I or ESC
@@ -246,10 +245,6 @@ $(document).ready(function() {
     txtArea.oncut = txtArea.onpaste = function() {
         updateLineNumbers();
     };
-
-    txtArea.addEventListener('autosize:resized', function() {
-        lineNumbers.style.height = txtArea.style.height;
-    });
 
     // standard POST form submit (with page reload)
     document.querySelector('.btn-submit').onclick = function() {
