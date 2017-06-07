@@ -30,7 +30,7 @@ else {
     <title>PHP Codebox: Test your PHP code</title>
     <meta name="author" content="Dennis Jungbauer">
     <meta name="editor" content="Sublime Text 3">
-    <link rel="stylesheet" href="style_dev.css">
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono">
     <!-- Alternative: Patrick Hand SC -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope">
