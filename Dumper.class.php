@@ -101,7 +101,7 @@ class Dumper
      * @return string
      */
     private static function getVarType($var, $cssClass = false) {
-        switch ($valueType = gettype($var)) {
+        switch ($valueType = strtolower(gettype($var))) {
             case 'integer' :
                 $valueType = 'int';
                 break;
@@ -116,9 +116,6 @@ class Dumper
                 break;
             case 'resource' :
                 $valueType = 'Resource';
-                break;
-            case 'NULL' :
-                $valueType = 'null';
                 break;
         }
 
@@ -146,7 +143,7 @@ class Dumper
      * @return mixed|string
      */
     private static function processVarValue($var) {
-        switch (gettype($var)) {
+        switch (strtolower(gettype($var))) {
             case 'string' :
                 $quoteType = '"';
                 $value = str_replace($quoteType, "\\$quoteType", $var);
@@ -176,9 +173,6 @@ class Dumper
                 break;
             case 'object' :
                 $value = get_class($var);
-                break;
-            case 'NULL' :
-                $value = 'null';
                 break;
             default :
                 $value = $var;

@@ -70,8 +70,10 @@ body {
 }
 
 .codebox-wrapper > * {
-	padding: 5px 5px 20px 5px;
+	min-height: 100%;
+	padding: 5px 5px 15px 5px;
 	font: 12px/16px Menlo, 'Fira Mono', monospace;
+	box-sizing: border-box;
 }
 
 .line-numbers {

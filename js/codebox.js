@@ -1,10 +1,10 @@
-// Element der Codebox
-var txtArea = document.querySelector('textarea.code');
-var lineNumbers = document.querySelector('.line-numbers');
+var txtArea = document.querySelector('.codebox-wrapper .code');
+var lineNumbers = document.querySelector('.codebox-wrapper .line-numbers');
 
 function getSelectedText() {
     var curElem = document.activeElement;
     var fixElems = ['textarea', 'input'];
+
     if (fixElems.indexOf(curElem.tagName.toLowerCase()) > -1) {
         return curElem.value.substring(curElem.selectionStart, curElem.selectionEnd);
     } else if (window.getSelection) {
@@ -14,59 +14,31 @@ function getSelectedText() {
     }
 }
 
-function errorsOnLines(show) {
-    show = (typeof show === "undefined") ? true : show;
-
-    var errorLines = lineNumbers.querySelectorAll('.error');
-    errorLines.forEach(function(elem) {
-        elem.className = "";
-    });
-    if (show) {
-        errorLines = window.outputFrame.document.querySelectorAll('.error-line');
-        errorLines.forEach(function(elem) {
-            var i = elem.innerHTML - 1;
-            var lineToMark = lineNumbers.childNodes[i];
-            if (lineToMark !== undefined) {
-                lineToMark.className = "error";
-            }
-        });
-    }
-}
-
-function runCode(code) {
-    if (code) {
-        $.post("", {code: code}, function(result) {
-            var iframe = window.outputFrame.document;
-            iframe.open();
-            iframe.write(result);
-            iframe.close();
-
-            errorsOnLines();
-        });
-    }
-}
-
 function updateLineNumbers(newLineNumbers, removeOld) {
     // setTimeout puts the function in the queue and only fires after the last operation has finished
-    // this way it will eg. fire after insertion of text and can calculate the correct line count including the copied text
+    // this way it will eg. fire after insertion of text and can calculate the correct line count including the pasted text
     setTimeout(function() {
         removeOld = removeOld || false;
         newLineNumbers = newLineNumbers || txtArea.value.split("\n").length;
         var startLineNumber = lineNumbers.childNodes.length;
+
         if (removeOld) {
             lineNumbers.innerHTML = "";
             startLineNumber = 1;
         }
+
         if (newLineNumbers > startLineNumber || removeOld) {
             if (!removeOld) {
                 startLineNumber += 1;
             }
+
             var nodes = document.createDocumentFragment();
             for (var i = startLineNumber; i <= newLineNumbers; i++) {
                 var node = document.createElement('span');
                 node.appendChild( document.createTextNode(i) );
                 nodes.appendChild(node);
             }
+
             lineNumbers.appendChild(nodes);
         }
         else if (newLineNumbers < startLineNumber) {
@@ -74,7 +46,51 @@ function updateLineNumbers(newLineNumbers, removeOld) {
                 lineNumbers.removeChild(lineNumbers.lastElementChild);
             }
         }
+
+        // update textarea height
+        var txtAreaActualHeight = txtArea.scrollHeight;
+        var codeboxVisibleHeight = document.querySelector('.codebox-wrapper').clientHeight;
+
+        if (txtAreaActualHeight > codeboxVisibleHeight) {
+            // height = line * line-height + vertical padding
+            var height = lineNumbers.childNodes.length * 16 + 20;
+            txtArea.style.height = height + 'px';
+            lineNumbers.style.height = height + 'px';
+        }
     }, 0);
+}
+
+function runCode(code) {
+    if (!code) {
+        return false;
+    }
+
+    $.post('', { code: code }, function(output) {
+        var iframe = document.outputFrame.document;
+        iframe.open();
+        iframe.write(output);
+        iframe.close();
+
+        errorsOnLine();
+    })
+}
+
+function errorsOnLine() {
+    // clear previous errors
+    var errorLines = lineNumbers.querySelectorAll('.error');
+    errorLines.forEach(function(elem) {
+        elem.className = '';
+    });
+
+    var errors = document.outputFrame.document.querySelectorAll('.code-error .error-line');
+    errors.forEach(function(elem) {
+        var errorLine = parseInt(elem.innerHTML) - 1;
+        var lineToMark = lineNumbers.childNodes[errorLine];
+
+        if (lineToMark !== undefined) {
+            lineToMark.className = 'error';
+        }
+    });
 }
 
 
@@ -83,142 +99,155 @@ $(document).ready(function() {
         txtArea.value = sessionStorage.getItem('autosave');
     }
     updateLineNumbers();
-    autosize(txtArea);
 
-    document.addEventListener("keydown", function(e) {
-        // ESC oder Ctrl + I: Infos zum Text anzeigen
-        if (e.which == 27 || (e.ctrlKey && e.which == 73)) {
+    //autosize(txtArea);
+
+    document.addEventListener('keydown', function(e) {
+        // CTRL + I or ESC
+        if ((e.ctrlKey && e.which == 73) || e.which == 27) {
             var code;
             if (getSelectedText()) {
                 code = getSelectedText();
             } else {
                 code = txtArea.value;
             }
-            var lines = code.split("\n").length;
-            var letters = code.length - (lines - 1);
-            if (letters == 0) lines = 0;
-            alert("Letters: " + letters + "\nLines: " + lines);
+
+            var lineCount = code.split("\n").length;
+            var letterCount = code.length - lineCount + 1;
+
+            alert('Letters: ' + letterCount + "\nLines: " + lineCount);
         }
 
-        // Cmd + Shift + R: Clean reload, without session
-        if (e.metaKey && e.shiftKey && e.which == 82) {
+        // CTRL + Shift + R
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.which == 82) {
             e.preventDefault();
             sessionStorage.clear();
             location.reload();
         }
     });
-    txtArea.addEventListener("keydown", function(e) {
-        /*
-         * pointerIdx:  derzeitige Cursorposition oder Anfangsposition der Auswahl/Selection
-         * pointerEnd:  Endposition der Auswahl
-         * indentation: zu verwendende Charakter bzgl. Einrückung
-         */
-        var text = txtArea.value,
-            pointerIdx = txtArea.selectionStart,
-            pointerEnd = txtArea.selectionEnd,
-            selection = getSelectedText(),
-            indentation = "    ",
-            indentLen = indentation.length,
-            indentationRegex = "^( {4}|\t|\u2002{4})"; // four spaces, one tab, four &ensp; characters
 
-        // Tab: 'indentation' einfügen
+    txtArea.addEventListener('keydown', function(e) {
+        var code = txtArea.value;
+        var pointerIdx = txtArea.selectionStart;
+        var pointerEnd = txtArea.selectionEnd;
+        var indentation = '    ';
+        var indentationRegex = new RegExp('^(' + indentation + ')+');
+
+        // when selection and any key except CTRL or CMD (Mac)
+        if (pointerIdx != pointerEnd && !e.ctrlKey && !e.metaKey) {
+            updateLineNumbers();
+        }
+
+        // left arrow key, backspace
+        if (e.which == 37 || e.which == 8) {
+            if (pointerIdx != pointerEnd) {
+                return false;
+            }
+
+            var lineStart = code.lastIndexOf("\n", (pointerIdx - 1)) + 1;
+            var beforeCursor = code.substring(lineStart, pointerIdx);
+            var regex = new RegExp(indentationRegex.source + '$');
+
+            if (regex.test(beforeCursor)) {
+                e.preventDefault();
+
+                // backspace
+                if (e.which == 8) {
+                    var prevLines = code.substring(0, lineStart);
+                    var newIndent = beforeCursor.slice(0, -indentation.length);
+                    var afterCursor = code.substr(pointerIdx);
+
+                    txtArea.value = prevLines + newIndent + afterCursor;
+                }
+
+                txtArea.selectionStart = pointerIdx - indentation.length;
+                txtArea.selectionEnd = txtArea.selectionStart;
+            } else {
+                // backspace
+                if (e.which == 8 && beforeCursor == '') {
+                    updateLineNumbers();
+                }
+            }
+
+            return;
+        }
+
+        // right arrow key
+        if (e.which == 39) {
+            var afterCursor = code.substr(pointerIdx);
+
+            if (indentationRegex.test(afterCursor)) {
+                e.preventDefault();
+
+                txtArea.selectionStart = pointerIdx + indentation.length;
+                txtArea.selectionEnd = txtArea.selectionStart;
+            }
+
+            return;
+        }
+
+        // Tab
         if (e.which == 9) {
             e.preventDefault();
-            var textPrev = text.substr(0, pointerIdx),  // Teil vor dem Cursor
-                textNext = text.substring(pointerEnd),  // Teil danach
-                newPointerIdx = pointerIdx + indentLen;
 
-            // block indentation
-            if (selection) {
+            var beforeCursor = code.substring(0, pointerIdx);
+            var afterCursor = code.substr(pointerEnd);
+
+            // when selection
+            if (pointerIdx != pointerEnd) {
+                var selection = getSelectedText();
+
+                // Shift + Tab
                 if (e.shiftKey) {
-                    selection = selection.replace(new RegExp(indentationRegex, "gm"), "");
-                    // get the absolute position of the first non-whitespace character in selection
-                    newPointerIdx = selection.search(/[^\s]/) + textPrev.length;
+                    var regex = new RegExp('^' + indentation, 'gm');
+                    selection = selection.replace(regex, '');
+
+                    pointerEnd -= indentation.length;
                 } else {
-                    selection = selection.replace(new RegExp('^', "gm"), indentation);
+                    selection = selection.replace(/^/gm, indentation);
+                    var indents = selection.split("\n").length;
+
+                    pointerEnd += indents * indentation.length;
                 }
-                text = textPrev + selection + textNext;
+
+                txtArea.value = beforeCursor + selection + afterCursor;
+                txtArea.selectionStart = pointerIdx;
+                txtArea.selectionEnd = pointerEnd;
             } else {
-                if (e.shiftKey) {
-                    textPrev = text.substr(0, pointerIdx - indentLen);
-                    var indent = text.substr(pointerIdx - indentLen, indentLen);
-
-                    text = textPrev + indent.replace(new RegExp(indentationRegex), "") + textNext;
-                    newPointerIdx = pointerIdx - indentLen;
-                } else {
-                    text = textPrev + indentation + textNext;
+                if (!e.shiftKey) {
+                    txtArea.value = beforeCursor + indentation + afterCursor;
+                    txtArea.selectionStart = pointerIdx + indentation.length;
+                    txtArea.selectionEnd = txtArea.selectionStart;
                 }
             }
-            txtArea.value = text;
-            txtArea.selectionEnd = newPointerIdx;
-        }
 
-        if (!selection) {
-            // Tab-Simulation - Wenn ein Vielfaches von 4 Leerzeichen vor dem Cursor, lösche oder bewege den Cursor um 4, nicht um eins:
-            // Löschtaste, Pfeiltaste links
-            if (e.which == 8 || e.which == 37) {
-                // Index/Position of first char from current line
-                var lineStart = text.substr(0, pointerIdx).lastIndexOf("\n") + 1,
-                    lineBeforePointer = text.substring(lineStart, pointerIdx),
-                    regex = new RegExp(indentationRegex + "+$");
-
-                // if text from line start to cursor pos consists only of multiples of indentation
-                if (regex.test(lineBeforePointer)) {
-                    e.preventDefault();
-                    if (e.which == 8) {
-                        var textPrev = text.substr(0, pointerIdx - indentLen),
-                            textNext = text.substring(pointerIdx, text.length);
-                        txtArea.value = textPrev + textNext;
-                    }
-                    txtArea.selectionEnd = pointerIdx - indentLen;
-                }
-                // Zeilennummern anpassen, wenn Zeile entfernt wurde
-                else if (e.which == 8 && !lineBeforePointer && pointerIdx > 0) {
-                    lineNumbers.removeChild(lineNumbers.lastElementChild);
-                }
-            }
-            // Pfeiltaste rechts
-            if (e.which == 39) {
-                var regex = new RegExp(indentationRegex);
-                // chars after cursor pos must equal 'indentation' chars
-                if (regex.test(text.substring(pointerIdx, text.length))) {
-                    e.preventDefault();
-                    txtArea.selectionStart = pointerIdx + indentLen;
-                }
-            }
-        }
-
-        if (selection && !e.ctrlKey && !e.metaKey) {
-            updateLineNumbers();
+            return;
         }
 
         // Enter
         if (e.which == 13) {
-            // Ctrl + Enter: Formular absenden
+            // CTRL + Enter
             if (e.ctrlKey) {
-                runCode(text);
-            }
-            // Zeilennummern anpassen, wenn neue Zeile
-            else {
+                runCode(code);
+            } else {
                 updateLineNumbers();
             }
+
+            return;
         }
 
-        // Ctrl + S
+        // CTRL + S
         if (e.ctrlKey && e.which == 83) {
-            sessionStorage.setItem('autosave', txtArea.value);
+            e.preventDefault();
+            sessionStorage.setItem('autosave', code);
         }
-
-        /*if (!e.ctrlKey && !e.metaKey && e.which != 27) {
-            errorsOnLines(false);
-        }*/
     });
 
-    txtArea.onpaste = txtArea.oncut = function() {
+    txtArea.oncut = txtArea.onpaste = function() {
         updateLineNumbers();
     };
 
-    txtArea.addEventListener("autosize:resized", function() {
+    txtArea.addEventListener('autosize:resized', function() {
         lineNumbers.style.height = txtArea.style.height;
     });
 
@@ -239,14 +268,4 @@ $(document).ready(function() {
         document.body.appendChild(form);
         document.codebox.submit();
     }
-});
-
-
-/*
- * function for the browser Dev-Tools, offline regex101 alternative ;)
- * Usage: string to test regex against into the codebox, then call this function, with your regex as parameter, in the browser console
- */
-function regexTester(regex) {
-    var testStr = txtArea.value;
-    console.log(testStr.match(regex));
-}
+})

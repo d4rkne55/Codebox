@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Basic MVC class
+ * Basic class for templating
  */
 class View
 {
@@ -13,10 +13,10 @@ class View
         if (substr($templateDir, -1) != '/') {
             $templateDir .= '/';
         }
-        $this->templateDir = __DIR__ . "/$templateDir";
+        $this->templateDir = $templateDir;
 
         if (!file_exists($this->templateDir)) {
-            throw new Exception("Path doesn't exist.");
+            throw new Exception("Template directory doesn't exist.");
         }
     }
 
@@ -24,7 +24,7 @@ class View
      * Renders template with passed variables
      *
      * @param string $template  filename of the template to render
-     * @param array $vars       variables to pass to the template, optional
+     * @param array  $vars      variables to pass to the template, optional
      * @throws Exception        ..when template not found
      */
     public function render($template, $vars = array()) {
@@ -37,14 +37,7 @@ class View
         }
     }
 
-    /*public function __set($var, $value) {
-        $this->vars[$var] = $value;
-    }*/
-
     public function __get($var) {
-        if (isset($this->vars[$var])) {
-            return $this->vars[$var];
-        }
-        return null;
+        return isset($this->vars[$var]) ? $this->vars[$var] : null;
     }
 }

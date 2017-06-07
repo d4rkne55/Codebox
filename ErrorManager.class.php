@@ -14,6 +14,7 @@ class ErrorManager
         E_WARNING => 'Warning',
         E_PARSE => 'Parse error',
         E_NOTICE => 'Notice',
+        E_COMPILE_WARNING => 'Compile warning',
         E_USER_ERROR => 'Fatal error <i>(user-generated)</i>',
         E_USER_WARNING => 'Warning <i>(user-generated)</i>',
         E_USER_NOTICE => 'Notice <i>(user-generated)</i>',
@@ -52,7 +53,7 @@ class ErrorManager
 
             // if fatal error, stop script execution, just like PHP's original handling
             if ($fatal) {
-                die();
+                exit;
             }
 
             return true;
@@ -82,11 +83,16 @@ class ErrorManager
      */
     public static function handleFatal() {
         // don't display fatal errors
-        error_reporting(E_ALL & ~E_ERROR);
+        error_reporting(E_ALL & ~E_ERROR & ~E_COMPILE_WARNING);
 
         register_shutdown_function(function() {
             $error = error_get_last();
-            if ($error['type'] == E_ERROR) {
+            $errorTypes = array(
+                E_ERROR,
+                E_COMPILE_WARNING
+            );
+
+            if (in_array($error['type'], $errorTypes)) {
                 ErrorManager::handleError($error['type'], $error['message'], $error['file'], $error['line']);
             }
         });
