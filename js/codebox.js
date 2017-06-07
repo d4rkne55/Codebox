@@ -195,17 +195,15 @@ $(document).ready(function() {
             // when selection
             if (pointerIdx != pointerEnd) {
                 var selection = getSelectedText();
+                var indents = selection.split("\n").length;
 
                 // Shift + Tab
                 if (e.shiftKey) {
                     var regex = new RegExp('^' + indentation, 'gm');
                     selection = selection.replace(regex, '');
-
-                    pointerEnd -= indentation.length;
+                    pointerEnd -= indents * indentation.length;
                 } else {
                     selection = selection.replace(/^/gm, indentation);
-                    var indents = selection.split("\n").length;
-
                     pointerEnd += indents * indentation.length;
                 }
 
