@@ -184,11 +184,20 @@ class Dumper
     /**
      * Display time of code execution between Class construction and this method
      *
-     * @param int $precision
+     * @param bool $output     time in ms gets echo'ed when true
+     * @param int  $precision
+     * @return null|string
      */
-    public function getTime($precision = 2) {
+    public function getTime($output = true, $precision = 2) {
         $this->timeEnd = microtime(true);
-        echo sprintf("%.{$precision}f", ($this->timeEnd - $this->timeStart) * 1000) . ' ms';
+        $timeMs = sprintf("%.{$precision}f", ($this->timeEnd - $this->timeStart) * 1000);
+
+        if ($output) {
+            echo "$timeMs ms";
+            return null;
+        } else {
+            return $timeMs;
+        }
     }
 
     /**

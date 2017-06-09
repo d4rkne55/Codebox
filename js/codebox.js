@@ -233,6 +233,11 @@ $(document).ready(function() {
             return;
         }
 
+        // CTRL + <
+        if (e.ctrlKey && e.which == 188) {
+            txtArea.value = code.replace(/(  |\t)/g, indentation);
+        }
+
         // CTRL + S
         if (e.ctrlKey && e.which == 83) {
             e.preventDefault();
