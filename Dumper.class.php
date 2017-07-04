@@ -10,9 +10,9 @@ class Dumper
      * Dumper constructor.
      * Dumps variables with highlighting when passed, else only prepare for time measuring
      *
-     * @param mixed $var          variable(s) to dump
-     * @param bool $custom        decides whether custom dumping format or PHP's print_r
-     * @param bool $highlighting  colored styling or plain dump
+     * @param mixed $var           variable(s) to dump
+     * @param bool  $custom        decides whether custom dumping format or PHP's print_r
+     * @param bool  $highlighting  colored styling or plain dump
      */
     public function __construct($var = null, $custom = true, $highlighting = true) {
         if (isset($var)) {
@@ -48,7 +48,7 @@ class Dumper
      * Custom dumping format and styling for better readability
      *
      * @param mixed $var
-     * @param bool $highlighting
+     * @param bool  $highlighting
      */
     public function customDumping($var, $highlighting) {
         include_once('templates/DumperCustom.css.html');
@@ -69,7 +69,10 @@ class Dumper
                         <td></td>
                         <td><span class="object-index"><?= $varKey ?></span></td>
                         <td> => </td>
-                        <td><span class="value <?= $typeClass ?>"><?= $value ?></span> <?= $valueType ?></td>
+                        <td>
+                            <span class="value <?= $typeClass ?>"><?= $value ?></span>
+                            <span class="value-type"><?= $valueType ?></span>
+                        </td>
                     </tr>
                     <?php
                 }
@@ -86,7 +89,8 @@ class Dumper
             $typeClass = self::getVarType($var, true);
             ?>
             <div class="dumper highlighting">
-                <span class="value <?= $typeClass ?>"><?= $value ?></span> <?= $valueType ?>
+                <span class="value <?= $typeClass ?>"><?= $value ?></span>
+                <span class="value-type"><?= $valueType ?></span>
             </div>
             <?php
         }
@@ -97,7 +101,7 @@ class Dumper
      * Includes the markup for being displayed when $cssClass is not set
      *
      * @param mixed $var
-     * @param bool $cssClass
+     * @param bool  $cssClass
      * @return string
      */
     private static function getVarType($var, $cssClass = false) {
@@ -127,7 +131,7 @@ class Dumper
             }
         } else {
             if (!in_array($valueType, array('array', 'null'))) {
-                $valueType = '<span class="value-type">(' . $valueType . ')</span>';
+                $valueType = "($valueType)";
             } else {
                 $valueType = '';
             }
@@ -140,22 +144,25 @@ class Dumper
      * Processes values for dumping
      *
      * @param mixed $var
-     * @return mixed|string
+     * @return string|mixed
      */
     private static function processVarValue($var) {
         switch (strtolower(gettype($var))) {
             case 'string' :
                 $quoteType = '"';
                 $value = str_replace($quoteType, "\\$quoteType", $var);
+
                 // escaping of HTML tags
                 $value = strtr($value, array(
                     '<' => '&lt;',
                     '>' => '&gt;'
                 ));
+
                 // shorten long strings
                 if (mb_strlen($value) > 500) {
                     $value = mb_substr($value, 0, 500) . '<span class="string-shortened">&hellip;</span>';
                 }
+
                 // escaping of special characters
                 $value = strtr($value, array(
                     "\\$quoteType" => '<span class="escaped-char">\\' .$quoteType. '</span>',
@@ -173,6 +180,9 @@ class Dumper
                 break;
             case 'object' :
                 $value = get_class($var);
+                break;
+            case 'null' :
+                $value = 'null';
                 break;
             default :
                 $value = $var;
@@ -202,6 +212,9 @@ class Dumper
 
     /**
      * little helper function for converting an associative array to inline CSS format
+     *
+     * @param array $styleArr
+     * @return string
      */
     private static function arrayToInlineCss($styleArr) {
         $css = array();

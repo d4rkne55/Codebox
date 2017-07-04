@@ -42,7 +42,7 @@ class ErrorManager
 
             $errStr = self::formatErrorMessage($errStr);
 
-            $view = new \View();
+            $view = new View();
             $view->render('ErrorManagerTemplate.php', array(
                 'noticeClass' => $noticeClass,
                 'errType' => $errType,

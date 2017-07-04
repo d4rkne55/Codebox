@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPCodebox;
+
 /**
  * Basic class for templating
  */
@@ -16,7 +18,7 @@ class View
         $this->templateDir = $templateDir;
 
         if (!file_exists($this->templateDir)) {
-            throw new Exception("Template directory doesn't exist.");
+            throw new \Exception("Template directory doesn't exist.");
         }
     }
 
@@ -25,7 +27,7 @@ class View
      *
      * @param string $template  filename of the template to render
      * @param array  $vars      variables to pass to the template, optional
-     * @throws Exception        ..when template not found
+     * @throws \Exception       when template not found
      */
     public function render($template, $vars = array()) {
         $this->vars = $vars;
@@ -33,7 +35,7 @@ class View
         if (file_exists($this->templateDir . $template)) {
             include($this->templateDir . $template);
         } else {
-            throw new Exception('Template not found!');
+            throw new \Exception('Template not found!');
         }
     }
 
