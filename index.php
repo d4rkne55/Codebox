@@ -6,19 +6,22 @@ include 'Codebox.class.php';
 
 use PHPCodebox\Codebox;
 
-// if AJAX request
-if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+
+if ($isAjax || isset($_POST['codebox-output-form'])) {
     $codebox = new Codebox(true);
-    $output = $codebox->parseCode($_POST['code']);
+    $output = $codebox->parseCode($_POST['codebox-code']);
+
     die($output);
 }
 else {
     $code = Codebox::getCodeTemplate();
     $output = null;
 
-    if (isset($_POST['code'])) {
+    if (isset($_POST['codebox-code'])) {
+        $code = $_POST['codebox-code'];
         $codebox = new Codebox(true);
-        $code = $_POST['code'];
         $output = htmlspecialchars( $codebox->parseCode($code) );
     }
 }
@@ -43,7 +46,7 @@ else {
         <div class="row-wrapper">
             <div class="codebox-wrapper">
                 <div class="line-numbers"></div>
-                <textarea class="code" name="code" autofocus spellcheck="false"><?= $code ?></textarea>
+                <textarea class="code" name="codebox-code" autofocus spellcheck="false"><?= $code ?></textarea>
             </div>
             <iframe class="output" name="outputFrame" sandbox="allow-forms allow-scripts allow-modals allow-same-origin"
                 srcdoc="<?= $output ?>">

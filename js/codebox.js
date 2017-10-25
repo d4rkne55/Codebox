@@ -60,12 +60,47 @@ function updateLineNumbers(newLineNumbers, removeOld) {
     }, 0);
 }
 
+function outputFormFix(code) {
+    var html = new DOMParser().parseFromString(code, 'text/html');
+
+    var flagInput = document.createElement('input');
+    flagInput.type = 'hidden';
+    flagInput.name = 'codebox-output-form';
+    flagInput.value = true;
+
+    var codePassInput = document.createElement('input');
+    codePassInput.type = 'hidden';
+    codePassInput.name = 'codebox-code';
+    codePassInput.value = "<?= htmlspecialchars($_POST['codebox-code']) ?>";
+
+    for (var i = 0; i < html.forms.length; i++) {
+        var form = html.forms[i];
+
+        if (form.method == 'post') {
+            var newForm = form.cloneNode(true);
+
+            newForm.appendChild(flagInput);
+            newForm.appendChild(codePassInput);
+
+            // using replace to keep rest of code
+            // making an html string of the DOM object could modify the code
+            code = code.replace(form.outerHTML, newForm.outerHTML);
+        } else {
+            alert('Info: Submitting forms is only supported via POST method.');
+        }
+    }
+
+    return code;
+}
+
 function runCode(code) {
     if (!code) {
         return false;
     }
 
-    $.post('', { code: code }, function(output) {
+    code = outputFormFix(code);
+
+    $.post('', { 'codebox-code': code }, function(output) {
         var iframe = document.outputFrame.document;
         iframe.open();
         iframe.write(output);
