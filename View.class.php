@@ -15,7 +15,7 @@ class View
         if (substr($templateDir, -1) != '/') {
             $templateDir .= '/';
         }
-        $this->templateDir = $templateDir;
+        $this->templateDir = __DIR__ . "/$templateDir";
 
         if (!file_exists($this->templateDir)) {
             throw new \Exception("Template directory doesn't exist.");

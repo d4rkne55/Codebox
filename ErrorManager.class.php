@@ -103,7 +103,7 @@ class ErrorManager
         $str = preg_replace('/variable: (\w+)/', 'variable: \$$1', $str);
 
         // make undefined stuff italic and slightly grey, except offsets (beginning with number)
-        $str = preg_replace('/(undefined [a-z]+:?) ([a-z$][\w]*)/i', '$1 <i>$2</i>', $str);
+        $str = preg_replace('/(undefined [a-z]+:? (?:\w+::)?)([a-z$][\w\-]*(?:\(\))?)/i', '$1 <i>$2</i>', $str);
 
         // link to php manual for functions and methods, unless undefined
         if (stripos($str, 'undefined') === false) {
