@@ -1,5 +1,6 @@
 var txtArea = document.querySelector('.codebox-wrapper .code');
 var lineNumbers = document.querySelector('.codebox-wrapper .line-numbers');
+var iframe = document.getElementsByName('outputFrame')[0].contentDocument;
 
 function getSelectedText() {
     var curElem = document.activeElement;
@@ -117,7 +118,7 @@ function errorsOnLine() {
         elem.className = '';
     });
 
-    var errors = document.outputFrame.document.querySelectorAll('.code-error .error-line');
+    var errors = iframe.querySelectorAll('.code-error .error-line');
     errors.forEach(function(elem) {
         var errorLine = parseInt(elem.innerHTML) - 1;
         var lineToMark = lineNumbers.childNodes[errorLine];

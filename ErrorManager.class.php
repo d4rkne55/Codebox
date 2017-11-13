@@ -99,14 +99,32 @@ class ErrorManager
     }
 
     private static function formatErrorMessage($str) {
+        // remove 'called in' information from messages
+        $str = preg_replace('/called in [\w\-\/\.]+.*(on line \d+).*$/', 'called $1', $str);
+
         // prefix variables with $
         $str = preg_replace('/variable: (\w+)/', 'variable: \$$1', $str);
 
         // make undefined stuff italic and slightly grey, except offsets (beginning with number)
-        $str = preg_replace('/(undefined [a-z]+:? (?:\w+::)?)([a-z$][\w\-]*(?:\(\))?)/i', '$1 <i>$2</i>', $str);
+        $str = preg_replace_callback('/(undefined [a-z]+:?) ([^\s]+)/i', function($matches) {
+            if (stripos($matches[1], 'offset') !== false) {
+                return $matches[0];
+            }
 
-        // link to php manual for functions and methods, unless undefined
-        if (stripos($str, 'undefined') === false) {
+            $highlight = $matches[2];
+            $classPrefix = '';
+
+            if (stripos($matches[1], 'method') !== false) {
+                $highlight = explode('::', $matches[2]);
+                $classPrefix = $highlight[0] . '::';
+                $highlight = $highlight[1];
+            }
+
+            return "$matches[1] $classPrefix<i>$highlight</i>";
+        }, $str);
+
+        // link to php manual for functions and methods, unless undefined or 'call to' message
+        if (stripos($str, 'undefined') === false && stripos($str, 'call to') === false) {
             $str = preg_replace_callback('/(?:([^\s]+)::)?(\w+\(\))/', function($matches) {
                 $funcParent = empty($matches[1]) ? 'function' : $matches[1];
 
