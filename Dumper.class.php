@@ -119,7 +119,7 @@ class Dumper
                 $valueType = 'Object';
                 break;
             case 'resource' :
-                $valueType = 'Resource';
+                $valueType = 'Resource: ' . get_resource_type($var);
                 break;
         }
 
