@@ -1,6 +1,6 @@
 var txtArea = document.querySelector('.codebox-wrapper .code');
 var lineNumbers = document.querySelector('.codebox-wrapper .line-numbers');
-var iframe = document.getElementsByName('outputFrame')[0].contentDocument;
+var iframe = document.getElementsByName('outputFrame')[0];
 
 function getSelectedText() {
     var curElem = document.activeElement;
@@ -102,10 +102,9 @@ function runCode(code) {
     code = outputFormFix(code);
 
     $.post('', { 'codebox-code': code }, function(output) {
-        var iframe = document.outputFrame.document;
-        iframe.open();
-        iframe.write(output);
-        iframe.close();
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(output);
+        iframe.contentDocument.close();
 
         errorsOnLine();
     })
@@ -118,7 +117,7 @@ function errorsOnLine() {
         elem.className = '';
     });
 
-    var errors = iframe.querySelectorAll('.code-error .error-line');
+    var errors = iframe.contentDocument.querySelectorAll('.code-error .error-line');
     errors.forEach(function(elem) {
         var errorLine = parseInt(elem.innerHTML) - 1;
         var lineToMark = lineNumbers.childNodes[errorLine];
