@@ -98,7 +98,8 @@ class Dumper
 
     /**
      * Returns the variable's datatype
-     * Includes the markup for being displayed when $cssClass is not set
+     * The text for being displayed when $cssClass is not set,
+     * otherwise, if $cssClass is true, the class name for CSS
      *
      * @param mixed $var
      * @param bool  $cssClass
@@ -126,6 +127,8 @@ class Dumper
         if ($cssClass) {
             if ($valueType == 'bool') {
                 $valueType = ($var === true) ? 'true' : 'false';
+            } elseif (gettype($var) == 'resource') {
+                $valueType = 'resource';
             } else {
                 $valueType = strtolower($valueType);
             }
