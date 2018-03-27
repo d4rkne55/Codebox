@@ -5,6 +5,9 @@ class Dumper
     public $timeStart;
     public $timeEnd;
 
+    private $customFormat;
+    private $highlighting;
+
 
     /**
      * Dumper constructor.
@@ -15,8 +18,11 @@ class Dumper
      * @param bool  $highlighting  colored styling or plain dump
      */
     public function __construct($var = null, $custom = true, $highlighting = true) {
+        $this->customFormat = $custom;
+        $this->highlighting = $highlighting;
+
         if (isset($var)) {
-            $containerStyles = $this::arrayToInlineCss(array(
+            $containerStyles = self::arrayToInlineCss(array(
                 'display' => 'table',
                 'min-width' => '100%',
                 'margin' => '0.3em 0',
@@ -26,18 +32,15 @@ class Dumper
                 'border-width' => '1px 0',
                 'box-sizing' => 'border-box'
             ));
-            echo "<div style=\"$containerStyles\">";
 
             if ($custom) {
-                $this->customDumping($var, $highlighting);
+                $dumped = self::customDumping($var, $highlighting);
             } else {
                 $dumped = print_r($var, true);
                 $dumped = '<pre style="margin: 0">' .$dumped. '</pre>';
-
-                echo $dumped;
             }
 
-            echo '</div>';
+            echo "<div style=\"$containerStyles\">$dumped</div>";
         }
 
         // start time measuring
@@ -49,29 +52,47 @@ class Dumper
      *
      * @param mixed $var
      * @param bool  $highlighting
+     * @return string
      */
-    public function customDumping($var, $highlighting) {
+    public static function customDumping($var, $highlighting) {
+        ob_start();
+
         include_once('templates/DumperCustom.css.html');
+
+        $highlightClass = $highlighting ? 'highlighting' : '';
 
         if (is_array($var)) {
             ?>
-            <table class="dumper <?php echo $highlighting ? 'highlighting' : '' ?>">
+            <table class="dumper <?= $highlightClass ?>">
                 <tr>
                     <td colspan="4"><span class="var-type">Array</span> {</td>
                 </tr>
                 <?php
                 foreach ($var as $varKey => $varValue) {
-                    $value = self::processVarValue($varValue);
                     $valueType = self::getVarType($varValue);
                     $typeClass = self::getVarType($varValue, true);
+
+                    if (is_array($varValue)) {
+                        $value = self::customDumping($varValue, $highlighting);
+                    } else {
+                        $value = self::processVarValue($varValue);
+                    }
                     ?>
                     <tr>
                         <td></td>
                         <td><span class="object-index"><?= $varKey ?></span></td>
                         <td> => </td>
                         <td>
-                            <span class="value <?= $typeClass ?>"><?= $value ?></span>
-                            <span class="value-type"><?= $valueType ?></span>
+                            <?php
+                            if (is_array($varValue)) {
+                                echo $value;
+                            } else { ?>
+                                <span class="value <?= $typeClass ?>"><?= $value ?></span>
+                            <?php } ?>
+
+                            <?php if (!empty($valueType)) { ?>
+                                <span class="value-type">(<?= $valueType ?>)</span>
+                            <?php } ?>
                         </td>
                     </tr>
                     <?php
@@ -88,12 +109,17 @@ class Dumper
             $valueType = self::getVarType($var);
             $typeClass = self::getVarType($var, true);
             ?>
-            <div class="dumper highlighting">
+            <div class="dumper <?= $highlightClass ?>">
                 <span class="value <?= $typeClass ?>"><?= $value ?></span>
-                <span class="value-type"><?= $valueType ?></span>
+
+                <?php if (!empty($valueType)) { ?>
+                    <span class="value-type">(<?= $valueType ?>)</span>
+                <?php } ?>
             </div>
             <?php
         }
+
+        return ob_get_clean();
     }
 
     /**
@@ -133,9 +159,7 @@ class Dumper
                 $valueType = strtolower($valueType);
             }
         } else {
-            if (!in_array($valueType, array('array', 'null'))) {
-                $valueType = "($valueType)";
-            } else {
+            if (in_array($valueType, array('array', 'null'))) {
                 $valueType = '';
             }
         }
@@ -177,9 +201,6 @@ class Dumper
                 break;
             case 'boolean' :
                 $value = ($var === true) ? 'true' : 'false';
-                break;
-            case 'array' :
-                $value = print_r($var, true);
                 break;
             case 'object' :
                 $value = get_class($var);
