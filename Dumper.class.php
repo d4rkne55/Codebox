@@ -197,6 +197,9 @@ class Dumper
                     "\n" => '<span class="escaped-char">\n</span>',
                     "\t" => '<span class="escaped-char">\t</span>'
                 ));
+                // escaping of html entities
+                $value = preg_replace('/&(\w+|#x?\d+);/', '<span class="escaped-char">&amp;$1;</span>', $value);
+
                 $value = $quoteType .$value. $quoteType;
                 break;
             case 'boolean' :
