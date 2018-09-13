@@ -2,26 +2,23 @@
 
 class Dumper
 {
-    public $timeStart;
-    public $timeEnd;
-
     private $customFormat;
     private $highlighting;
 
 
     /**
      * Dumper constructor.
-     * Dumps variables with highlighting when passed, else only prepare for time measuring
+     * Dumps variables with highlighting
      *
      * @param mixed $var           variable(s) to dump
      * @param bool  $custom        decides whether custom dumping format or PHP's print_r
      * @param bool  $highlighting  colored styling or plain dump
      */
-    public function __construct($var = null, $custom = true, $highlighting = true) {
+    public function __construct($var, $custom = true, $highlighting = true) {
         $this->customFormat = $custom;
         $this->highlighting = $highlighting;
 
-        if (isset($var)) {
+        if (count(func_get_args()) > 0) {
             $containerStyles = self::arrayToInlineCss(array(
                 'display' => 'table',
                 'min-width' => '100%',
@@ -42,9 +39,6 @@ class Dumper
 
             echo "<div style=\"$containerStyles\">$dumped</div>";
         }
-
-        // start time measuring
-        $this->timeStart = microtime(true);
     }
 
     /**
@@ -216,25 +210,6 @@ class Dumper
         }
 
         return $value;
-    }
-
-    /**
-     * Display time of code execution between Class construction and this method
-     *
-     * @param bool $output     time in ms gets echo'ed when true
-     * @param int  $precision
-     * @return null|string
-     */
-    public function getTime($output = true, $precision = 2) {
-        $this->timeEnd = microtime(true);
-        $timeMs = sprintf("%.{$precision}f", ($this->timeEnd - $this->timeStart) * 1000);
-
-        if ($output) {
-            echo "$timeMs ms";
-            return null;
-        } else {
-            return $timeMs;
-        }
     }
 
     /**

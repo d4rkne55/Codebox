@@ -2,6 +2,7 @@
 include 'View.class.php';
 include 'ErrorManager.class.php';
 include 'Dumper.class.php';
+include 'Timer.class.php';
 include 'Codebox.class.php';
 
 use PHPCodebox\Codebox;
