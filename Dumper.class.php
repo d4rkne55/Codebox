@@ -170,6 +170,14 @@ class Dumper
     private static function processVarValue($var) {
         switch (strtolower(gettype($var))) {
             case 'string' :
+                // shorten long strings
+                if (mb_strlen($var) > 500) {
+                    $var = mb_substr($var, 0, 500);
+                    $ellipsis = true;
+                } else {
+                    $ellipsis = false;
+                }
+
                 $quoteType = '"';
                 $value = str_replace($quoteType, "\\$quoteType", $var);
 
@@ -179,11 +187,6 @@ class Dumper
                     '>' => '&gt;'
                 ));
 
-                // shorten long strings
-                if (mb_strlen($value) > 500) {
-                    $value = mb_substr($value, 0, 500) . '<span class="string-shortened">&hellip;</span>';
-                }
-
                 // escaping of special characters
                 $value = strtr($value, array(
                     "\\$quoteType" => '<span class="escaped-char">\\' .$quoteType. '</span>',
@@ -191,8 +194,19 @@ class Dumper
                     "\n" => '<span class="escaped-char">\n</span>',
                     "\t" => '<span class="escaped-char">\t</span>'
                 ));
-                // escaping of html entities
-                $value = preg_replace('/&(\w+|#x?\d+);/', '<span class="escaped-char">&amp;$1;</span>', $value);
+
+                // escaping of HTML entities
+                $value = preg_replace_callback('/&(\w+|#x?\d+);/', function($matches) {
+                    if (in_array($matches[1], ['lt', 'gt'])) {
+                        return $matches[0];
+                    }
+
+                    return '<span class="escaped-char">&amp;' .$matches[1]. ';</span>';
+                }, $value);
+
+                if ($ellipsis) {
+                    $value .= '<span class="string-shortened">&hellip;</span>';
+                }
 
                 $value = $quoteType .$value. $quoteType;
                 break;

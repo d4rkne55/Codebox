@@ -5,7 +5,17 @@ $vars = array(
     'working' => true,
     'implemented' => false,
     'progress' => 100/3,
-    'foo' => null
+    'foo' => null,
+    'obj' => new stdClass(),
+    'depth' => array(
+        'foo',
+        'works' => true
+    )
 );
 
 new Dumper($vars);
+new Dumper(null);
+new Dumper(
+'<div class="foo">
+    <span>&copy; Copyright by D4rK&#9760;RuLLz</span>
+</div>');
