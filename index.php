@@ -46,7 +46,7 @@ else {
         <div class="row-wrapper">
             <div class="codebox-wrapper">
                 <div class="line-numbers"></div>
-                <textarea class="code" name="codebox-code" autofocus spellcheck="false"><?= $code ?></textarea>
+                <textarea class="code" name="codebox-code" autofocus spellcheck="false"><?= htmlspecialchars($code) ?></textarea>
             </div>
             <iframe class="output" name="outputFrame" sandbox="allow-forms allow-scripts allow-modals allow-same-origin"
                 srcdoc="<?= $output ?>">
