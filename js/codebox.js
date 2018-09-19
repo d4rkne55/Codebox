@@ -62,8 +62,6 @@ function updateLineNumbers(newLineNumbers, removeOld) {
 }
 
 function outputFormFix(code) {
-    var html = new DOMParser().parseFromString(code, 'text/html');
-
     var flagInput = document.createElement('input');
     flagInput.type = 'hidden';
     flagInput.name = 'codebox-output-form';
@@ -74,18 +72,18 @@ function outputFormFix(code) {
     codePassInput.name = 'codebox-code';
     codePassInput.value = "<?= htmlspecialchars($_POST['codebox-code']) ?>";
 
-    for (var i = 0; i < html.forms.length; i++) {
-        var form = html.forms[i];
+    var regex = /<form[ >](?:.*method="(\w+)")?/gi;
+    var match;
 
-        if (form.method == 'post') {
-            var newForm = form.cloneNode(true);
+    // loop through the found forms
+    while ((match = regex.exec(code)) !== null) {
+        if (match[1] !== undefined && match[1].toLowerCase() == 'post') {
+            var beforeForm = code.substr(0, match.index);
+            var sinceForm = code.substr(match.index);
 
-            newForm.appendChild(flagInput);
-            newForm.appendChild(codePassInput);
-
-            // using replace to keep rest of code
-            // making an html string of the DOM object could modify the code
-            code = code.replace(form.outerHTML, newForm.outerHTML);
+            // using replace instead of DOM parsing and manipulation
+            // to keep the original code
+            code = beforeForm + sinceForm.replace('</form>', flagInput.outerHTML + codePassInput.outerHTML + '</form>');
         } else {
             alert('Info: Submitting forms is only supported via POST method.');
         }
