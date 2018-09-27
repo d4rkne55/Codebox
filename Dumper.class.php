@@ -19,17 +19,6 @@ class Dumper
         $this->highlighting = $highlighting;
 
         if (count(func_get_args()) > 0) {
-            $containerStyles = self::arrayToInlineCss(array(
-                'display' => 'table',
-                'min-width' => '100%',
-                'margin' => '0.3em 0',
-                'padding' => '0.2em 0.35em 0.3em',
-                'background' => 'rgba(0,0,0, 0.02)',
-                'border' => '1px solid rgba(0,0,0, 0.1)',
-                'border-width' => '1px 0',
-                'box-sizing' => 'border-box'
-            ));
-
             if ($custom) {
                 $dumped = self::customDumping($var, $highlighting);
             } else {
@@ -37,7 +26,7 @@ class Dumper
                 $dumped = '<pre style="margin: 0">' .$dumped. '</pre>';
             }
 
-            echo "<div style=\"$containerStyles\">$dumped</div>";
+            echo '<div class="dumper-container">' .$dumped. '</div>';
         }
     }
 
@@ -224,20 +213,5 @@ class Dumper
         }
 
         return $value;
-    }
-
-    /**
-     * little helper function for converting an associative array to inline CSS format
-     *
-     * @param array $styleArr
-     * @return string
-     */
-    private static function arrayToInlineCss($styleArr) {
-        $css = array();
-        foreach ($styleArr as $option => $value) {
-            $css[] = $option. ':' .$value;
-        }
-
-        return implode(';', $css);
     }
 }
