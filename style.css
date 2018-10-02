@@ -52,6 +52,7 @@ body {
 .row-wrapper {
     display: flex;
     flex: 1;
+    overflow: hidden;
 }
 
 .row-wrapper > * {
