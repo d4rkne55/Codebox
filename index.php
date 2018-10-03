@@ -41,18 +41,18 @@ else {
 </head>
 <body>
     <div id="flex-container">
-        <div class="button-area">
+        <header class="button-area">
             <button class="btn-submit" title="Ctrl + Enter">Run</button>
-        </div>
-        <div class="row-wrapper">
-            <div class="codebox-wrapper">
-                <div class="line-numbers"></div>
+        </header>
+        <main class="flex">
+            <div class="editor flex scrollable">
+                <aside class="line-numbers"></aside>
                 <textarea class="code" name="codebox-code" autofocus spellcheck="false"><?= htmlspecialchars($code) ?></textarea>
             </div>
-            <iframe class="output" name="outputFrame" sandbox="allow-forms allow-scripts allow-modals allow-same-origin"
+            <iframe class="output flex" name="outputFrame" sandbox="allow-forms allow-scripts allow-modals allow-same-origin"
                 srcdoc="<?= $output ?>">
             </iframe>
-        </div>
+        </main>
     </div>
 
     <script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>

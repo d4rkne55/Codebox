@@ -1,5 +1,6 @@
-var txtArea = document.querySelector('.codebox-wrapper .code');
-var lineNumbers = document.querySelector('.codebox-wrapper .line-numbers');
+var editor = document.querySelector('.editor');
+var txtArea = editor.querySelector('.code');
+var lineNumbers = editor.querySelector('.line-numbers');
 var iframe = document.getElementsByName('outputFrame')[0];
 
 function getSelectedText() {
@@ -50,7 +51,7 @@ function updateLineNumbers(newLineNumbers, removeOld) {
 
         // update textarea height
         var txtAreaActualHeight = txtArea.scrollHeight;
-        var codeboxVisibleHeight = document.querySelector('.codebox-wrapper').clientHeight;
+        var codeboxVisibleHeight = editor.clientHeight;
 
         if (txtAreaActualHeight > codeboxVisibleHeight) {
             // height = line * line-height + vertical padding
