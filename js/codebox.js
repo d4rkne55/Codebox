@@ -54,12 +54,21 @@ function updateLineNumbers(newLineNumbers, removeOld) {
         var codeboxVisibleHeight = editor.clientHeight;
 
         if (txtAreaActualHeight > codeboxVisibleHeight) {
-            // height = line * line-height + vertical padding
+            // height = lines * line-height + vertical padding
             var height = lineNumbers.childNodes.length * 16 + 20;
+
             txtArea.style.height = height + 'px';
+            // fix code at top sometimes being cut (textarea scrolling down)
+            // because of temporarily not enough height for content
+            txtArea.scrollTop = 0;
             lineNumbers.style.height = height + 'px';
+
+            // if cursor is at the last line scroll to bottom again
+            if (txtArea.selectionEnd > txtArea.value.lastIndexOf("\n")) {
+                editor.scrollTop = txtArea.scrollHeight - codeboxVisibleHeight;
+            }
         }
-    }, 0);
+    }, 1);
 }
 
 function outputFormFix(code) {
@@ -75,6 +84,7 @@ function outputFormFix(code) {
 
     var regex = /<form[ >](?:.*method="(\w+)")?/gi;
     var match;
+    var showInfo = false;
 
     // loop through the found forms
     while ((match = regex.exec(code)) !== null) {
@@ -86,8 +96,12 @@ function outputFormFix(code) {
             // to keep the original code
             code = beforeForm + sinceForm.replace('</form>', flagInput.outerHTML + codePassInput.outerHTML + '</form>');
         } else {
-            alert('Info: Submitting forms is only supported via POST method.');
+            showInfo = true;
         }
+    }
+
+    if (showInfo) {
+        alert('Info: Submitting forms is only supported via POST method.');
     }
 
     return code;
@@ -234,8 +248,12 @@ $(document).ready(function() {
                 // Shift + Tab
                 if (e.shiftKey) {
                     var regex = new RegExp('^' + indentation, 'gm');
-                    selection = selection.replace(regex, '');
-                    pointerEnd -= indents * indentation.length;
+                    var replacements = 0;
+                    selection = selection.replace(regex, function() {
+                        replacements++;
+                        return '';
+                    });
+                    pointerEnd -= replacements * indentation.length;
                 } else {
                     selection = selection.replace(/^/gm, indentation);
                     pointerEnd += indents * indentation.length;
