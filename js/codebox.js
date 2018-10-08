@@ -23,6 +23,8 @@ function updateLineNumbers(newLineNumbers, removeOld) {
         removeOld = removeOld || false;
         newLineNumbers = newLineNumbers || txtArea.value.split("\n").length;
         var startLineNumber = lineNumbers.childNodes.length;
+        var txtAreaActualHeight = Math.max(parseInt(txtArea.style.height) || 0, txtArea.scrollHeight);
+        var codeboxVisibleHeight = editor.clientHeight;
 
         if (removeOld) {
             lineNumbers.innerHTML = "";
@@ -50,22 +52,20 @@ function updateLineNumbers(newLineNumbers, removeOld) {
         }
 
         // update textarea height
-        var txtAreaActualHeight = txtArea.scrollHeight;
-        var codeboxVisibleHeight = editor.clientHeight;
-
         if (txtAreaActualHeight > codeboxVisibleHeight) {
             // height = lines * line-height + vertical padding
-            var height = lineNumbers.childNodes.length * 16 + 20;
+            var height = newLineNumbers * 16 + 20;
 
             txtArea.style.height = height + 'px';
+            lineNumbers.style.height = height + 'px';
+
             // fix code at top sometimes being cut (textarea scrolling down)
             // because of temporarily not enough height for content
             txtArea.scrollTop = 0;
-            lineNumbers.style.height = height + 'px';
 
             // if cursor is at the last line scroll to bottom again
             if (txtArea.selectionEnd > txtArea.value.lastIndexOf("\n")) {
-                editor.scrollTop = txtArea.scrollHeight - codeboxVisibleHeight;
+                editor.scrollTop = Math.max(height, codeboxVisibleHeight) - codeboxVisibleHeight;
             }
         }
     }, 1);
