@@ -2,6 +2,7 @@ var editor = document.querySelector('.editor');
 var txtArea = editor.querySelector('.code');
 var lineNumbers = editor.querySelector('.line-numbers');
 var iframe = document.getElementsByName('outputFrame')[0];
+var notification;
 
 function getSelectedText() {
     var curElem = document.activeElement;
@@ -114,10 +115,28 @@ function runCode(code) {
 
     code = outputFormFix(code);
 
+    var notifShown = false;
+    var notifTimer = setTimeout(function() {
+        if (notification == null) {
+            notification = new Notification(null, null, document.body);
+        } else {
+            notification.reset();
+        }
+        notification.setContent($('<div class="loading-circle"></div>'));
+
+        notifShown = true;
+    }, 250);
+
     $.post('', { 'codebox-code': code }, function(output) {
         iframe.contentDocument.open();
         iframe.contentDocument.write(output);
         iframe.contentDocument.close();
+
+        if (!notifShown) {
+            clearTimeout(notifTimer);
+        } else {
+            notification.$element.addClass('is-removed');
+        }
 
         errorsOnLine();
     })
@@ -294,6 +313,15 @@ $(document).ready(function() {
         if (e.ctrlKey && e.which == 83) {
             e.preventDefault();
             sessionStorage.setItem('autosave', code);
+
+            if (notification == null) {
+                notification = new Notification('Saved.', 'success', document.body);
+            } else {
+                notification.reset();
+                notification.setType('success');
+                notification.setMessage('Saved.');
+            }
+            notification.autohide();
         }
     });
 

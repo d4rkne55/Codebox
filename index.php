@@ -58,5 +58,6 @@ else {
     <script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script>if(!window.jQuery) document.write('<script src="js/jquery-3.1.1.min.js"><\/script>')</script>
     <script src="js/codebox.js"></script>
+    <script src="js/notification.js"></script>
 </body>
 </html>
