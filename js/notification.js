@@ -4,6 +4,7 @@ function Notification(message, type, parent) {
     this.$parent = (typeof parent == 'undefined') ? $('.notification-wrapper') : $(parent);
     this.$element = null;
     this.element = null;
+    this.autohideTimer = null;
 
     this.create = function() {
         var $notification = $('<div class="notification anim"></div>');
@@ -28,6 +29,7 @@ function Notification(message, type, parent) {
     };
 
     this.setContent = function(node) {
+        this.$element.html('');
         this.$element.append(node);
     };
 
@@ -45,18 +47,45 @@ function Notification(message, type, parent) {
         this.type = type;
     };
 
-    this.autohide = function(delay) {
-        delay = delay || 3000;
-        var $notification = this.$element;
+    this.hide = function(animated) {
+        animated = (typeof animated == 'undefined') ? true : animated;
 
-        setTimeout(function() {
-            $notification.addClass('is-removed');
+        clearTimeout(this.autohideTimer);
+
+        if (animated) {
+            this.$element.addClass('anim');
+        } else {
+            this.$element.removeClass('anim');
+        }
+
+        this.$element.addClass('is-removed');
+    };
+
+    this.show = function(animated) {
+        animated = (typeof animated == 'undefined') ? false : animated;
+
+        if (animated) {
+            this.$element.addClass('anim');
+        } else {
+            this.$element.removeClass('anim');
+        }
+
+        this.$element.removeClass('is-removed');
+    };
+
+    this.autohide = function(animated, delay) {
+        animated = (typeof animated == 'undefined') ? true : animated;
+        delay = delay || 3000;
+        var self = this;
+
+        this.autohideTimer = setTimeout(function() {
+            self.hide(animated);
         }, delay);
     };
 
     this.reset = function() {
-        this.$element.removeClass(this.type + ' anim is-removed');
-        this.$element.addClass('anim');
+        clearTimeout(this.autohideTimer);
+        this.$element.removeClass(this.type);
         this.$element.html('');
     };
 

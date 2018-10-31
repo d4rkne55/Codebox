@@ -121,6 +121,7 @@ function runCode(code) {
             notification = new Notification(null, null, document.body);
         } else {
             notification.reset();
+            notification.show(false);
         }
         notification.setContent($('<div class="loading-circle"></div>'));
 
@@ -135,7 +136,7 @@ function runCode(code) {
         if (!notifShown) {
             clearTimeout(notifTimer);
         } else {
-            notification.$element.addClass('is-removed');
+            notification.hide();
         }
 
         errorsOnLine();
@@ -317,9 +318,9 @@ $(document).ready(function() {
             if (notification == null) {
                 notification = new Notification('Saved.', 'success', document.body);
             } else {
-                notification.reset();
                 notification.setType('success');
                 notification.setMessage('Saved.');
+                notification.show();
             }
             notification.autohide();
         }
