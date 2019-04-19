@@ -199,6 +199,7 @@ $(document).ready(function() {
         var pointerEnd = txtArea.selectionEnd;
         var indentation = '    ';
         var indentationRegex = new RegExp('^(' + indentation + ')+');
+        var comment = '// ';
 
         // when selection and any key except CTRL or CMD (Mac)
         if (pointerIdx != pointerEnd && !e.ctrlKey && !e.metaKey) {
@@ -301,6 +302,55 @@ $(document).ready(function() {
             } else {
                 updateLineNumbers();
             }
+
+            return;
+        }
+
+        // CTRL + /
+        if (e.ctrlKey && (e.which == 111 || e.which == 189)) {
+            var selection = getSelectedText();
+            var lines = selection.split("\n");
+            var firstLineStart = code.lastIndexOf("\n", (pointerIdx - 1)) + 1;
+            var firstLineEnd = code.indexOf("\n", pointerIdx);
+            firstLineEnd = firstLineEnd > 0 ? firstLineEnd : code.length;
+            var firstLine = code.substring(firstLineStart, firstLineEnd);
+            var prevLines = code.substring(0, firstLineStart);
+            var nextLines = code.substr(Math.max(firstLineEnd, pointerEnd));
+            var commentStart = firstLine.match(/(\S)/).index;
+
+            lines[0] = firstLine;
+            selection = lines.join("\n");
+
+            if (firstLine.substr(commentStart, comment.length) == comment) {
+                console.log('already commented');
+                var regex = new RegExp('^(.{'+ commentStart +'})' + comment, 'gm');
+                var replacements = 0;
+                selection = selection.replace(regex, function(match, group1) {
+                    replacements++;
+                    return group1;
+                });
+
+                if (pointerIdx == pointerEnd) {
+                    pointerIdx -= comment.length;
+                }
+                pointerEnd -= replacements * comment.length;
+            } else {
+                var regex = new RegExp('^.{'+ commentStart +'}', 'gm');
+                var replacements = 0;
+                selection = selection.replace(regex, function(match) {
+                    replacements++;
+                    return match + comment;
+                });
+
+                if (pointerIdx == pointerEnd) {
+                    pointerIdx += comment.length;
+                }
+                pointerEnd += replacements * comment.length;
+            }
+
+            txtArea.value = prevLines + selection + nextLines;
+            txtArea.selectionStart = pointerIdx;
+            txtArea.selectionEnd = pointerEnd;
 
             return;
         }
