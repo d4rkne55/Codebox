@@ -26,6 +26,8 @@ class Dumper
                 $dumped = '<pre style="margin: 0">' .$dumped. '</pre>';
             }
 
+            include_once('templates/DumperCustom.css.html');
+
             echo '<div class="dumper-container">' .$dumped. '</div>';
         }
     }
@@ -39,8 +41,6 @@ class Dumper
      */
     public static function customDumping($var, $highlighting) {
         ob_start();
-
-        include_once('templates/DumperCustom.css.html');
 
         $highlightClass = $highlighting ? 'highlighting' : '';
 
