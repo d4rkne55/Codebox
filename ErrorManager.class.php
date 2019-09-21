@@ -25,6 +25,13 @@ class ErrorManager
     );
 
 
+    /**
+     * @param int    $errNum
+     * @param string $errStr
+     * @param string $errFile
+     * @param int    $errLine
+     * @return bool
+     */
     public static function handleError($errNum, $errStr, $errFile, $errLine) {
         try {
             // when error is not covered by this handler, fallback to PHP handling
@@ -68,7 +75,10 @@ class ErrorManager
         }
     }
 
-    public static function handleException(\Exception $e) {
+    /**
+     * @param \Exception|\Error $e
+     */
+    public static function handleException($e) {
         // defaults
         $errNum = ($e->getCode() === 0) ? E_ERROR : $e->getCode();
         $errStr = ($e->getMessage() == '') ? 'Uncaught Exception' : $e->getMessage();
