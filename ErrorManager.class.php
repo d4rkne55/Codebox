@@ -109,8 +109,8 @@ class ErrorManager
     }
 
     private static function formatErrorMessage($str) {
-        // remove 'called in' information from messages
-        $str = preg_replace('/called in [\w\-\/\.]+.*(on line \d+).*$/', 'called $1', $str);
+        // remove 'called/passed in' information from messages
+        $str = preg_replace('/(called|passed) in [\w\-\/\.]+.*(on line \d+).*$/', '$1 $2', $str);
 
         // prefix variables with $
         $str = preg_replace('/variable: (\w+)/', 'variable: \$$1', $str);
