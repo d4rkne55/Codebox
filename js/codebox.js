@@ -322,7 +322,6 @@ $(document).ready(function() {
             selection = lines.join("\n");
 
             if (firstLine.substr(commentStart, comment.length) == comment) {
-                console.log('already commented');
                 var regex = new RegExp('^(.{'+ commentStart +'})' + comment, 'gm');
                 var replacements = 0;
                 selection = selection.replace(regex, function(match, group1) {
