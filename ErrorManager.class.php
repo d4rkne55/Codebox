@@ -102,7 +102,7 @@ class ErrorManager
                 E_COMPILE_WARNING
             );
 
-            if (in_array($error['type'], $errorTypes)) {
+            if ($error !== null && in_array($error['type'], $errorTypes)) {
                 ErrorManager::handleError($error['type'], $error['message'], $error['file'], $error['line']);
             }
         });
